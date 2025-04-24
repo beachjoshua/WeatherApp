@@ -1,5 +1,11 @@
-#python code for backend
+# python code for backend
+# flask to use the python and html/javascript code together
+from flask import Flask, jsonify, render_template
+from flask_cors import CORS
 import requests
+
+app = Flask(__name__)
+CORS(app)
 
 class LocationData():
     def __init__(self):
@@ -54,7 +60,33 @@ class WeatherData():
         self.forecast = forecast_endpoint["properties"]["periods"]
         # gets the forecast for every hour for the next 7 days
         self.forecast_hourly = forecast_hourly_endpoint["properties"]["periods"]
+        
+    # creates dictionary with data
+    def to_dict(self):
+        return {
+            "current_temperature": self.forecast_hourly[0]['temperature'],
+            "current_forecast": self.forecast_hourly[0]['shortForecast'],
+            "temperature_unit": self.forecast_hourly[0]['temperatureUnit'],
+            "forecast_12hr": self.forecast[0]['detailedForecast'],
+            "forecast_7_day": self.forecast[1:]  # skip current period
+        }
 
+# shows the html on main localhost page
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+# sends json of the data to the frontend at localhost:5000/api/weather
+@app.route("/api/weather")
+def get_weather():
+    l = LocationData()
+    l.get_user_location()
+    w = WeatherData(l.lat, l.lon)
+
+    return jsonify({
+        "location": l.to_dict(),
+        "weather": w.to_dict()
+    })
 
 def main() -> None:
     # example usage
@@ -81,7 +113,7 @@ def main() -> None:
         
     
 if __name__ == "__main__":
-    main()
+    app.run(debug=True)
 
 
 '''

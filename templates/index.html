@@ -1,0 +1,45 @@
+<!-- index.html -->
+<!-- frontend template -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Weather App</title>
+</head>
+<body>
+  <h1>Weather Info</h1>
+  <!-- creates an empty div to store weather data into with tag "output" -->
+  <div id="output"></div>
+
+  <script>
+    //JavaScript
+
+    //fetches the data from where it is sent from the python file
+    fetch("http://127.0.0.1:5000/api/weather")
+      //waits for server to respond then converts the HTTP response to a JSON
+      .then(res => res.json())
+      .then(data => {
+        //gets refrence to the empty div to store the data in
+        const output = document.getElementById("output");
+
+        //gets location and weather data from the response
+        const loc = data.location;
+        const w = data.weather;
+
+        //create the HTML to display the data
+        output.innerHTML = `
+          <h2>${loc.city}, ${loc.state_name}</h2>
+          <p><strong>Current Temperature:</strong> ${w.current_temperature}°${w.temperature_unit}</p>
+          <p><strong>Current Forecast:</strong> ${w.current_forecast}</p>
+          <p><strong>12-Hour Forecast:</strong> ${w.forecast_12hr}</p>
+          <h3>7 Day Forecast</h3>
+          <ul>
+            ${w.forecast_7_day.map(f => `<li><strong>${f.name}:</strong> ${f.detailedForecast}</li>`).join("")}
+          </ul>
+        `;
+      })
+      //catches error in case anything goes wrong
+      .catch(err => console.error("Error fetching weather data:", err));
+  </script>
+</body>
+</html>
