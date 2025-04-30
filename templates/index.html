@@ -26,15 +26,39 @@
         const loc = data.location;
         const w = data.weather;
 
+        //helper function to choose icon based on condition
+        function getWeatherIcon(condition) {
+          const conditionLower = condition.toLowerCase();
+          if (conditionLower.includes("sun") || conditionLower.includes("clear")) {
+            return "static/icons/sun.png";
+          } else if ((conditionLower.includes("rain") || conditionLower.includes("showers")) && (conditionLower.includes("storm") || conditionLower.includes("thunder"))) {
+            return "static/icons/stormAndRain.png";
+          } else if (conditionLower.includes("rain") || conditionLower.includes("showers")) {
+            return "static/icons/rainy.png";
+          } else if (conditionLower.includes("snow")) {
+            return "static/icons/snowy.png";
+          } else if (conditionLower.includes("storm") || conditionLower.includes("thunder")) {
+            return "static/icons/storm.png";
+          }else if (conditionLower.includes("cloud")) {
+            return "static/icons/cloud.png";
+          }else {
+            return "static/icons/sun.png"; //fallback incase other images dont work
+          }
+        }
+
         //create the HTML to display the data
         output.innerHTML = `
           <h2>${loc.city}, ${loc.state_name}</h2>
           <p><strong>Current Temperature:</strong> ${w.current_temperature}°${w.temperature_unit}</p>
-          <p><strong>Current Forecast:</strong> ${w.current_forecast}</p>
+          <p><img src="${getWeatherIcon(w.current_forecast)}" alt="weather icon" width="100"><strong>Current Forecast:</strong> ${w.current_forecast} </p>
           <p><strong>12-Hour Forecast:</strong> ${w.forecast_12hr}</p>
           <h3>7 Day Forecast</h3>
           <ul>
-            ${w.forecast_7_day.map(f => `<li><strong>${f.name}:</strong> ${f.detailedForecast}</li>`).join("")}
+            ${w.forecast_7_day.map(f => `
+              <li>
+                <img src="${getWeatherIcon(f.detailedForecast)}" alt="weather icon" width="60">
+                <strong>${f.name}:</strong> ${f.detailedForecast}
+              </li>`).join("")}
           </ul>
         `;
       })
