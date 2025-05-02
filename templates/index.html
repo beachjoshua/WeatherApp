@@ -1,33 +1,269 @@
-<!-- index.html -->
-<!-- frontend template -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Weather App</title>
+  <style>
+    :root {
+      --bg: #f0f2f5;
+      --primary: #2c3e50;
+      --accent: #3498db;
+      --light-blue: #ecf7ff;
+      --light-gray: #f9f9f9;
+      --soft-red: #e74c3c;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: var(--bg);
+    }
+
+    h1, h2, h3 {
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary);
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      color: #2980b9;
+      font-size: 1.8em;
+    }
+
+    h3 {
+      color: #34495e;
+      font-size: 1.4em;
+      margin: 20px 0 10px;
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    #search-input {
+      padding: 12px;
+      width: 320px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    #search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 2px 6px rgba(52,152,219,0.2);
+    }
+
+    #search-results {
+      display: none;
+      width: 320px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      text-align: left;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 100;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 5px;
+    }
+
+    .search-result {
+      padding: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+
+    .search-result:hover {
+      background-color: var(--light-blue);
+    }
+
+    .search-result:last-child {
+      border-bottom: none;
+    }
+
+    #loading, .loading {
+      display: none;
+      text-align: center;
+      margin-top: 5px;
+      color: #7f8c8d;
+    }
+
+    #output {
+      background-color: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    #output h2 {
+      text-align: center;
+      font-size: 2em;
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+
+    #output p strong {
+      display: inline-block;
+      min-width: 160px;
+    }
+
+    #output .current-temp {
+      text-align: center;
+      font-size: 3em;
+      font-weight: bold;
+      color: #e67e22;
+      margin: 10px 0;
+    }
+
+    .current-weather,
+    .forecast-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      margin-bottom: 15px;
+      background-color: var(--light-gray);
+      border-radius: 8px;
+    }
+
+    .current-weather img,
+    .forecast-item img {
+      margin-right: 15px;
+    }
+
+    .error {
+      color: var(--soft-red);
+      font-weight: bold;
+      text-align: center;
+      padding: 15px;
+      background: #fdecea;
+      border: 1px solid var(--soft-red);
+      border-radius: 8px;
+    }
+
+    .weather-icon {
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      background-color: var(--light-blue);
+      border-radius: 50%;
+      margin-right: 15px;
+      line-height: 60px;
+      text-align: center;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul li {
+      display: flex;
+      align-items: center;
+      background: #f6f9fc;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    ul li img {
+      width: 50px;
+      margin-right: 15px;
+    }
+
+    #output ul li {
+      flex-direction: row;
+      padding: 16px;
+      border: 1px solid #e5e5e5;
+      background: #f6f9fc;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    #output ul li img {
+      flex-shrink: 0;
+      width: 50px;
+      height: 50px;
+    }
+
+    #output ul li strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--primary);
+    }
+
+    #output ul li p {
+      margin: 0;
+    }
+
+    #output ul li > div {
+      flex: 1;
+    }
+
+    #output ul li:nth-child(even) {
+      background: #f0f5fa;
+    }
+
+    .twelve-hour {
+      margin: 15px 0;
+      padding: 10px;
+      background-color: #f0f5fa;
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      #search-input,
+      #search-results {
+        width: 90%;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Weather Info</h1>
-  <!-- creates an empty div to store weather data into with tag "output" -->
-  <div id="output"></div>
+  <h1>Weather App</h1>
 
+  <!-- search -->
+  <div class="search-container">
+    <input type="text" id="search-input" placeholder="Search location (e.g., New York, NY)" />
+    <div id="search-results"></div>
+    <div id="loading">Searching...</div>
+  </div>
+
+  <!-- weather output -->
+  <div id="output" class="loading">Loading weather data...</div>
+  
   <script>
-    //JavaScript
+    // global variables
+    let searchTimeout = null;
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    const loadingIndicator = document.getElementById('loading');
+    const output = document.getElementById("output");
 
-    //fetches the data from where it is sent from the python file
-    fetch("http://127.0.0.1:5000/api/weather")
-      //waits for server to respond then converts the HTTP response to a JSON
-      .then(res => res.json())
-      .then(data => {
-        //gets refrence to the empty div to store the data in
-        const output = document.getElementById("output");
-
-        //gets location and weather data from the response
-        const loc = data.location;
-        const w = data.weather;
-
-        //helper function to choose icon based on condition
-        function getWeatherIcon(condition) {
+    // helper function to choose icon based on condition
+    function getWeatherIcon(condition) {
           const conditionLower = condition.toLowerCase();
           if (conditionLower.includes("sun") || conditionLower.includes("clear")) {
             return "static/icons/sun.png";
@@ -46,24 +282,217 @@
           }
         }
 
-        //create the HTML to display the data
+    // function to search for locations
+    function searchLocations(query) {
+      if (!query.trim()) {
+        searchResults.style.display = 'none';
+        return;
+      }
+      
+      loadingIndicator.style.display = 'block';
+      searchResults.style.display = 'none';
+      
+      fetch(`http://127.0.0.1:5000/api/search?q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+          // hide loading indicator
+          loadingIndicator.style.display = 'none';
+          
+          if (data.results && data.results.length > 0) {
+            // display search results
+            searchResults.innerHTML = '';
+            data.results.forEach(result => {
+              // make sure each result has required properties
+              if (!result.city) {
+                // try to take city from display_name if missing
+                const parts = result.display_name.split(',');
+                if (parts.length > 0) {
+                  result.city = parts[0].trim();
+                } else {
+                  result.city = "Unknown";
+                }
+              }
+              
+              if (!result.state_name && result.state) {
+                result.state_name = result.state;
+              } else if (!result.state_name) {
+                // try to take state from display_name if missing
+                const parts = result.display_name.split(',');
+                if (parts.length > 1) {
+                  result.state_name = parts[1].trim();
+                  result.state = result.state_name.substring(0, 2);
+                } else {
+                  result.state_name = "";
+                  result.state = "";
+                }
+              }
+              
+              // clean up state name
+              if (result.state_name) {
+                result.state_name = result.state_name.replace(/^State of /i, '').trim();
+              }
+              
+              const resultElement = document.createElement('div');
+              resultElement.classList.add('search-result');
+              
+              // clean display for user
+              const cleanDisplay = result.state_name ? 
+                `${result.city}, ${result.state_name}` : 
+                result.city;
+                
+              resultElement.innerHTML = cleanDisplay;
+              result.clean_display = cleanDisplay;
+              
+              // fetch weather for selected location
+              resultElement.addEventListener('click', () => {
+                fetchWeatherForLocation(result);
+                searchResults.style.display = 'none';
+                // update the search input with the clean display name
+                searchInput.value = cleanDisplay;
+              });
+              
+              searchResults.appendChild(resultElement);
+            });
+            searchResults.style.display = 'block';
+          } else {
+            searchResults.innerHTML = '<div class="search-result">No results found</div>';
+            searchResults.style.display = 'block';
+          }
+        })
+        .catch(err => {
+          console.error("Error searching locations:", err);
+          loadingIndicator.style.display = 'none';
+          searchResults.innerHTML = '<div class="search-result">Error searching locations</div>';
+          searchResults.style.display = 'block';
+        });
+    }
+
+    // function to fetch weather for a selected location
+    function fetchWeatherForLocation(location) {
+      output.innerHTML = '<p class="loading">Loading weather data...</p>';
+      output.className = "loading";
+      
+      console.log("Fetching weather for location:", location);
+    
+      const url = `http://127.0.0.1:5000/api/weather?lat=${location.lat}&lon=${location.lon}&city=${encodeURIComponent(location.city)}&state=${encodeURIComponent(location.state)}&state_name=${encodeURIComponent(location.state_name)}`;
+      
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          console.log("Weather data received:", data);
+          output.className = "";
+          displayWeather(data);
+        })
+        .catch(err => {
+          console.error("Error fetching weather for location:", err);
+          output.className = "";
+          output.innerHTML = `
+            <p class="error">Error loading weather data for this location. Please try again later.</p>
+            <p>Technical details: ${err.message}</p>
+          `;
+        });
+    }
+
+    // function to display weather data
+    function displayWeather(data) {
+      if (data.weather.error) {
         output.innerHTML = `
-          <h2>${loc.city}, ${loc.state_name}</h2>
-          <p><strong>Current Temperature:</strong> ${w.current_temperature}°${w.temperature_unit}</p>
-          <p><img src="${getWeatherIcon(w.current_forecast)}" alt="weather icon" width="100"><strong>Current Forecast:</strong> ${w.current_forecast} </p>
-          <p><strong>12-Hour Forecast:</strong> ${w.forecast_12hr}</p>
+          <h2>${data.location.city ? data.location.city + ", " : ""}${data.location.state_name || ""}</h2>
+          <p class="error">${data.weather.error}</p>
+          <p>Try searching for a different location within the United States.</p>
+        `;
+        return;
+      }
+      
+      const loc = data.location;
+      const w = data.weather;
+      
+      // make sure we have valid location data before displaying
+      const locationHeader = [];
+      if (loc.city) locationHeader.push(loc.city);
+      if (loc.state_name) locationHeader.push(loc.state_name);
+      
+      // default location name if both city and state are missing
+      const locationDisplay = locationHeader.length > 0 ? 
+                              locationHeader.join(", ") : 
+                              "Current Location";
+      
+      // create the HTML to display the data
+      output.innerHTML = `
+          <h2>${loc.city}, ${loc.state}</h2>
+          <p class="current-temp">${w.current_temperature}°${w.temperature_unit}</p>
+          
+          <div class="current-weather">
+            <img src="${getWeatherIcon(w.current_forecast)}" alt="weather icon" width="60">
+            <div>
+              <strong>Current Forecast:</strong> ${w.current_forecast}
+            </div>
+          </div>
+          
+          <div class="twelve-hour">
+            <p><strong>12-Hour Forecast:</strong> ${w.forecast_12hr}</p>
+          </div>
+          
           <h3>7 Day Forecast</h3>
           <ul>
             ${w.forecast_7_day.map(f => `
               <li>
-                <img src="${getWeatherIcon(f.detailedForecast)}" alt="weather icon" width="60">
-                <strong>${f.name}:</strong> ${f.detailedForecast}
+                <img src="${getWeatherIcon(f.detailedForecast)}" alt="weather icon">
+                <div>
+                  <strong>${f.name}</strong>
+                  <p>${f.detailedForecast}</p>
+                </div>
               </li>`).join("")}
           </ul>
         `;
-      })
-      //catches error in case anything goes wrong
-      .catch(err => console.error("Error fetching weather data:", err));
+    }
+
+    // function to fetch weather based on IP (not searched)
+    function fetchDefaultWeather() {
+      output.innerHTML = '<p class="loading">Loading weather data...</p>';
+      output.className = "loading";
+
+      fetch("http://127.0.0.1:5000/api/weather")
+        .then(res => res.json())
+        .then(data => {
+          output.className = "";
+          displayWeather(data);
+        })
+        .catch(err => {
+          console.error("Error fetching default weather data:", err);
+          output.className = '';
+          output.innerHTML = `
+            <p class="error">Failed to load weather data. Please try again later.</p>
+            <p>Technical details: ${err.message}</p>
+          `;
+        });
+    }
+
+    // add event listeners when document is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      // load default weather on page load
+      fetchDefaultWeather();
+      
+      // add event listener for search input
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value;
+        
+        if (searchTimeout) {
+          clearTimeout(searchTimeout);
+        }
+        
+        searchTimeout = setTimeout(() => {
+          searchLocations(query);
+        }, 300);
+      });
+      
+      // close search results when clicking outside
+      document.addEventListener('click', (e) => {
+        if (e.target !== searchInput && e.target !== searchResults && !searchResults.contains(e.target)) {
+          searchResults.style.display = 'none';
+        }
+      });
+    });
   </script>
 </body>
 </html>
